@@ -73,6 +73,9 @@
 #include <ublox_gps/ublox_firmware8.hpp>
 #include <ublox_gps/ublox_firmware9.hpp>
 
+// [ADD]: to show DOP
+#include <ublox_msgs/msg/nav_dop.hpp>
+
 namespace ublox_node {
 
 /**
@@ -426,6 +429,9 @@ void UbloxNode::getRosParams() {
   this->declare_parameter("publish.nav.status", getRosBoolean(this, "publish.nav.all"));
   this->declare_parameter("publish.nav.velned", getRosBoolean(this, "publish.nav.all"));
 
+  // [ADD] to show DOP
+  this->declare_parameter("publish.nav.dop", getRosBoolean(this, "publish.nav.all"));
+
   this->declare_parameter("publish.rxm.all", getRosBoolean(this, "publish.all"));
   this->declare_parameter("publish.rxm.almRaw", getRosBoolean(this, "publish.rxm.all"));
   this->declare_parameter("publish.rxm.eph", getRosBoolean(this, "publish.rxm.all"));
@@ -498,6 +504,11 @@ void UbloxNode::getRosParams() {
     nmea_pub_ = this->create_publisher<nmea_msgs::msg::Sentence>("nmea", 20);
   }
 
+  // [ADD] to show DOP
+  if (getRosBoolean(this, "publish.nav.dop")) {
+    nav_dop_pub_ = this->create_publisher<ublox_msgs::msg::NavDOP>("navdop", 1);
+  }
+
   // Create subscriber for RTCM correction data to enable RTK
   this->subscription_ = this->create_subscription<rtcm_msgs::msg::Message>("/rtcm", 10, std::bind(&UbloxNode::rtcmCallback, this, std::placeholders::_1));
 }
@@ -559,6 +570,12 @@ void UbloxNode::subscribe() {
 
   if (getRosBoolean(this, "publish.nav.cov")) {
     gps_->subscribe<ublox_msgs::msg::NavCOV>([this](const ublox_msgs::msg::NavCOV &m) { nav_cov_pub_->publish(m); },
+                                          1);
+  }
+
+  // [ADD]: to show DOP
+  if (getRosBoolean(this, "publish.nav.dop")) {
+    gps_->subscribe<ublox_msgs::msg::NavDOP>([this](const ublox_msgs::msg::NavDOP &m) { nav_dop_pub_->publish(m); }, 
                                           1);
   }
 

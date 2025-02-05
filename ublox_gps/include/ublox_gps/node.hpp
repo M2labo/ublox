@@ -272,6 +272,9 @@ class UbloxNode final : public rclcpp::Node {
   rclcpp::Publisher<ublox_msgs::msg::AidHUI>::SharedPtr aid_hui_pub_;
   rclcpp::Publisher<nmea_msgs::msg::Sentence>::SharedPtr nmea_pub_;
 
+  // [ADD]: to show DOP!
+  rclcpp::Publisher<ublox_msgs::msg::NavDOP>::SharedPtr nav_dop_pub_;
+
   void publish_nmea(const std::string & sentence, const std::string & topic);
 
   //! Navigation rate in measurement cycles, see CfgRate.msg

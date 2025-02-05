@@ -3056,6 +3056,50 @@ struct UbloxSerializer<ublox_msgs::msg::UpdSOSAck_<ContainerAllocator> > {
   }
 };
 
+// [ADD] to show DOP
+template <typename ContainerAllocator>
+struct UbloxSerializer<ublox_msgs::msg::NavDOP_<ContainerAllocator> > {
+  inline static void read(const uint8_t *data, uint32_t count,
+                          ublox_msgs::msg::NavDOP_<ContainerAllocator> & m) {
+    UbloxIStream stream(const_cast<uint8_t *>(data), count);
+    stream.next(m.i_tow);
+    stream.next(m.g_dop);
+    stream.next(m.p_dop);
+    stream.next(m.t_dop);
+    stream.next(m.v_dop);
+    stream.next(m.h_dop);
+    stream.next(m.n_dop);
+    stream.next(m.e_dop);
+
+    // UBXメッセージのDOP値は1/100スケールの整数値として送られるため、floatに変換
+    // m.g_dop /= 100.0;
+    // m.p_dop /= 100.0;
+    // m.t_dop /= 100.0;
+    // m.v_dop /= 100.0;
+    // m.h_dop /= 100.0;
+    // m.n_dop /= 100.0;
+    // m.e_dop /= 100.0;
+  }
+
+  inline static uint32_t serializedLength(const ublox_msgs::msg::NavDOP_<ContainerAllocator> & m) {
+    (void)m;
+    return 18;  // NAV-DOP のメッセージサイズ（バイト単位）
+  }
+
+  inline static void write(uint8_t *data, uint32_t size,
+                           const ublox_msgs::msg::NavDOP_<ContainerAllocator> & m) {
+    UbloxOStream stream(data, size);
+    stream.next(m.i_tow);
+    stream.next(static_cast<uint16_t>(m.g_dop * 100));
+    stream.next(static_cast<uint16_t>(m.p_dop * 100));
+    stream.next(static_cast<uint16_t>(m.t_dop * 100));
+    stream.next(static_cast<uint16_t>(m.v_dop * 100));
+    stream.next(static_cast<uint16_t>(m.h_dop * 100));
+    stream.next(static_cast<uint16_t>(m.n_dop * 100));
+    stream.next(static_cast<uint16_t>(m.e_dop * 100));
+  }
+};
+
 }  // namespace ublox
 
 #endif  // UBLOX_MSGS_SERIALIZATION_HPP
